@@ -2,13 +2,16 @@
 /.editorconfig
 /.gitattributes
 /.vscode/
+/AGENTS.md
+/assets/
 /composer.json
 /composer.lock
 /config/
+/CONTRIBUTING.md
 /logs/*
 !/logs/README.md
-/patches.lock.json
 /private/
+/README.md
 /recipes/
 /vendor/
 /web/

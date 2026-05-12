@@ -11,8 +11,6 @@ exec > >(tee $LOG_FILE) 2>&1
 TIMEFORMAT=%lR
 # For faster performance, don't audit dependencies automatically.
 export COMPOSER_NO_AUDIT=1
-# For faster performance, don't install dev dependencies.
-export COMPOSER_NO_DEV=1
 
 #== Remove root-owned files.
 echo
@@ -33,7 +31,7 @@ else
   echo
 fi
 # If update fails, change it to install.
-time composer -n update --no-dev --no-progress
+time composer -n update --no-progress
 
 #== Create the private files directory.
 if [ ! -d private ]; then
@@ -52,13 +50,17 @@ fi
 #== Install Drupal.
 echo
 if [ -z "$(drush status --field=db-status)" ]; then
-  echo 'Install Drupal.'
-  time drush -n si
+  echo 'Install Haven demo.'
+  until time drush -n si drupal_cms_installer installer_site_template_form.add_ons=haven; do
+    :
+  done
 
   echo
-  echo 'Tell Automatic Updates about patches.'
-  drush -n cset --input-format=yaml package_manager.settings additional_trusted_composer_plugins '["cweagans/composer-patches"]'
-  time drush ev '\Drupal::moduleHandler()->invoke("automatic_updates", "modules_installed", [[], FALSE])'
+  echo 'Enable DevPanel Marketplace Bar.'
+  time drush -n en devpanel_marketplace_bar
+
+  echo
+  time drush cr
 else
   echo 'Update database.'
   time drush -n updb
