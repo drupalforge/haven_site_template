@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export PATH="$APP_ROOT/vendor/bin:$PATH"
 if [ -n "${DEBUG_SCRIPT:-}" ]; then
   set -x
 fi
@@ -34,30 +35,34 @@ else
   time source .devpanel/composer_setup.sh
   echo
 fi
-# If update fails, change it to install.
 time composer -n update --no-progress
 
 #== Create the private files directory.
 if [ ! -d private ]; then
   echo
   echo 'Create the private files directory.'
-  time mkdir private
+  time mkdir -m 2775 private
 fi
 
 #== Create the config sync directory.
 if [ ! -d config/sync ]; then
   echo
   echo 'Create the config sync directory.'
-  time mkdir -p config/sync
+  time mkdir -pm 2775 config/sync
 fi
 
 #== Install Drupal.
 echo
 if [ -z "$(drush status --field=db-status)" ]; then
   echo 'Install Haven demo.'
-  until time drush -n si drupal_cms_installer installer_site_template_form.add_ons=haven; do
-    :
-  done
+  # Outside DDEV/dev container, fail immediately on the first install error.
+  if [ -z "${DRUPALFORGE_DEVCONTAINER:-}" ] && [ "${IS_DDEV_PROJECT:-}" != "true" ]; then
+    time drush -n si drupal_cms_installer installer_site_template_form.add_ons=haven
+  else
+    until time drush -n si drupal_cms_installer installer_site_template_form.add_ons=haven; do
+      :
+    done
+  fi
 
   echo
   echo 'Enable DevPanel Marketplace Bar.'
@@ -78,6 +83,13 @@ echo
 echo 'Populate caches.'
 time drush cache:warm &> /dev/null || :
 time .devpanel/warm
+time .devpanel/warm /user/login
+
+#== Fix ownership for strict permissions.
+echo
+echo 'Fix ownership for strict permissions.'
+time sudo chmod 2775 -R web/sites/default/files private config/sync
+time sudo chown -R ${APACHE_RUN_USER:=www-data}:${APACHE_RUN_GROUP:=www-data} web/sites/default/files private config/sync
 
 #== Finish measuring script time.
 INIT_DURATION=$SECONDS

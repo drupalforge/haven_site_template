@@ -9,7 +9,7 @@
 /config/
 /CONTRIBUTING.md
 /logs/*
-!/logs/README.md
+!/logs/.gitkeep
 /private/
 /README.md
 /recipes/
