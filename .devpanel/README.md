@@ -21,7 +21,8 @@ Files in the `.devpanel` directory control DevPanel deployment for this app.
   - [`warm`](warm): Loads any path to build caches. If no path is provided,
     defaults to /.
 - [`Dockerfile`](Dockerfile): Provides the `COMPOSER_HOME` variable required by
-  the Drupal Automatic Updates web UI.
+  the Drupal Automatic Updates web UI. Updates Composer to the latest stable
+  version at build time, avoiding concurrent PHAR replacement during startup.
 
 
 ## Git integration
