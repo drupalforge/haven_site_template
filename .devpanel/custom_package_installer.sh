@@ -12,9 +12,6 @@ if [ -n "$DEBUG_SCRIPT" ]; then
   set -x
 fi
 
-# Use the latest stable Composer.
-sudo composer self-update -n
-
 # Install APT packages.
 if ! command -v direnv >/dev/null 2>&1; then
   apt-get update
