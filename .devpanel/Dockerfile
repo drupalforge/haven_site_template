@@ -1,2 +1,5 @@
 ENV COMPOSER_HOME="${HOME}/.config/composer"
-RUN sudo composer self-update --stable -n
+
+USER root
+RUN composer self-update -n
+USER ${USER}
